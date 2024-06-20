@@ -1,0 +1,237 @@
+<html>
+<head>
+   <meta charset="utf-8">
+   <title>Title</title>
+   <link rel="stylesheet" href="style.css">
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+   <script type="text/javascript" src="https://livejs.com/live.js"></script>
+   <script type="text/javascript">
+      function getGoods(){
+         var temp = $.ajax({
+            url : 'serv.php',
+            parameter: '',
+            type : 'GET',
+            async: false
+            }
+         );
+         var all_goods=[];
+         var strings = temp.responseText.split("}");
+         var upperprice = $("input[name=upperprice]").val();
+         var lowerprice = $("input[name=lowerprice]").val();
+         for(var i=0; i<strings.length-1; i++){
+            strings[i]+="}";
+            var temp = jQuery.parseJSON(strings[i]);
+            if(upperprice=="" && lowerprice==""){
+                all_goods.push(temp);
+            }
+            else if(upperprice!="" && lowerprice==""){
+                if(temp.price*1<=upperprice*1){
+                    all_goods.push(temp);
+                }
+            }
+            else if(upperprice=="" && lowerprice!=""){
+                if(temp.price*1>=lowerprice*1){
+                    all_goods.push(temp);
+                }
+            }
+            else if(upperprice!="" && lowerprice!=""){
+                if(temp.price*1<=upperprice*1 && temp.price*1>=lowerprice*1){
+                    all_goods.push(temp);
+                }
+            }
+        }
+         return all_goods;
+      }
+   </script>
+   <script>
+      function FillSlogan(){
+          var text = '';
+          for(var i=0; i<10; i++)
+          {
+              text += "Чорна п'ятниця&emsp;&emsp;&emsp;";
+          }
+          $('#header-logo2').html("&emsp;&emsp;"+text);
+          $('#header-logo1').html(text);
+      }
+
+      function rotateHeader(deg, element){
+          document.getElementById(element).style.transform = 'rotate('+deg+')';
+      }
+      function countAngle(a){
+          var angle = Math.atan(60/a)+Math.asin(15/((Math.sqrt(2700+a*a))/2));
+          //console.log(angle);
+          rotateHeader(angle+'rad', 'header-logo1');
+          rotateHeader((0-angle)+'rad', 'header-logo2');
+      }
+      function adaptive(){
+          FillSlogan();
+          var check = window.outerWidth;
+          if(check > 450){
+              countAngle(window.outerWidth/2);
+              $('.header-text').css('display', 'inline');
+              $('nav').css('display', 'flex');
+              $('#header').css('justify-content', 'flex-end');
+              $('.header-text').css('left', ((2*check)/217+8863/217)+'vw');
+          }
+          else{
+              countAngle(window.outerWidth);
+              $('.header-text').css('display', 'none');
+              $('#header').css('justify-content', 'center');
+              $('nav').css('display', 'none');
+          }
+      }
+      window.onload=function(){
+          adaptive();
+      }
+      window.addEventListener(`resize`, event => {
+          adaptive();
+      }, false);
+  </script>
+</head>
+<body style="font-family: 'Montserrat', sans-serif; margin: 0;">
+<header id="header">
+      <div class="header-logo" id="header-logo2"></div>
+      <div class="header-logo" id="header-logo1"></div>
+      <div class="header-text">-30% НА ВСЮ ТЕХНІКУ</div>
+</header>
+<nav>
+  <div class="logo"><span>☰</span>L<span>☰</span>CTRO</div>
+  <div class="menu">
+      <div class="">Головна</div>
+      <div class="">Каталог</div>
+      <div class="">Довідковий центр</div>
+      <div class="">Кошик</div>
+  </div>
+  <div class="but"><button>Особистий кабінет</button></div>
+</nav>
+<div style="display: flex; flex-direction: row;">
+   <div class="filter" style="min-width: 15vw; padding: 30px; position: sticky; display: flex; gap:10px; justify-content: flex-start; align-items: flex-start; flex-direction: column;">
+    <label><h2>Фільтри</h2></label>
+    <h4 style="font-weight: 500; display:flex; flex-direction:column; gap:20px;">
+    <div class="selection">
+        <h3>Категорія</h3>
+        <div><input class="custom-checkbox" id="custom-checkbox" type="checkbox" name="checkbox" value="Телефон"><label for="phones"> Телефони</label></div>
+        <div><input class="custom-checkbox" id="custom-checkbox" type="checkbox" name="checkbox" value="Ноутбук"><label for="laptops"> Ноутбуки</label></div>
+        <div><input class="custom-checkbox" id="custom-checkbox" type="checkbox" name="checkbox" value="Навушники"><label for="headphones"> Навушники</label></div>
+        <div><input class="custom-checkbox" id="custom-checkbox" type="checkbox" name="checkbox" value="Планшет"><label for="tablets"> Планшет</label></div>
+        <div><input class="custom-checkbox" id="custom-checkbox" type="checkbox" name="checkbox" value="ПК"><label for="pcs"> ПК</label></div>
+        <div><input class="custom-checkbox" id="custom-checkbox" type="checkbox" name="checkbox" value="Годинники"><label for="watches"> Годинники</label></div>
+    </div>
+    <div class="selection">
+        <h3>Ціна</h3>
+        <div class="price" style="display: flex; gap:10px"><input type="text" name="lowerprice" placeholder=" Від" pattern="[1-9]{1}[0-9]">-<input type="text" name="upperprice" placeholder=" До"  pattern="[1-9]{1}[0-9]"></div>
+    </div>
+    <div><center><button class="acceptFilters" onclick=setGoodswithFilters() style="width:12vw;">Застосувати</button></center></div>
+    </h4>
+</div>
+   <div class="list" id="list" style="display:flex; flex-direction:column; row-gap: 40px; min-width: 70vw;">
+      <span>Акційні товари</span>
+   </div>
+   <script>
+    function fill(goods){
+      //var goods = getGoods();
+      var list = document.getElementById("list");
+      for(var i=0; i<goods.length; i++){
+         var tempdiv = document.createElement("div");
+         tempdiv.setAttribute('class', 'good');
+         tempdiv.style.display = "flex";
+         tempdiv.style.padding = "10px";
+         tempdiv.style.border = "1px solid #e4e4e4";
+         tempdiv.style.borderRadius = "10px";
+         tempdiv.style.boxShadow="10px 10px 11px 0px rgba(0,0,0,0.1)";
+         tempdiv.innerHTML = "<div style='width:250px; min-height: 222px; display: flex; align-content: center; justify-content: center;'><img id='image' style='max-height:200px; max-width:240px;object-fit: contain; margin:0 auto;' src='"+goods[i].image+"'></div> <div><p style='color: #2c509a;'>"+goods[i].good_name + "</p> <p style='font-size: 22; font-weight: 500; color: orange;'>"+goods[i].price+" ₴</div><div style='align-self:center; margin-left:auto;'><img src='cart.png' style ='width:50px; padding:50px'></div>";
+         list.appendChild(tempdiv);
+      }
+    }
+    fill(getGoods());
+   </script>
+   <script>
+    function getCheckbox(){
+    var f = [];
+    var filter ="";
+    $('input[name=checkbox]').change(function() {
+    if ($(this).is(':checked')) {
+        f.push(this.value);
+    } else {
+        var index = f.indexOf(this.value);
+        if (index !== -1) {
+        f.splice(index, 1);
+        }
+    }
+    });
+    }
+    function deletewithClass(classname){
+        $("."+classname).remove();
+    }
+    function setGoodswithFilters(){
+        if(getGoodswithFilters()=='null'){
+            deletewithClass('good');
+            fill(getGoods());
+        }
+        else{
+        link = 'servFilter.php?filter='+getGoodswithFilters();
+        var temp = $.ajax({
+            url : link,
+            parameter: '',
+            type : 'GET',
+            async: false
+            }
+         );
+         var all_goods=[];
+         var strings = temp.responseText.split("}");
+         var upperprice = $("input[name=upperprice]").val();
+         var lowerprice = $("input[name=lowerprice]").val();
+         for(var i=0; i<strings.length-1; i++){
+            strings[i]+="}";
+            var temp = jQuery.parseJSON(strings[i]);
+            if(upperprice=="" && lowerprice==""){
+                all_goods.push(temp);
+            }
+            else if(upperprice!="" && lowerprice==""){
+                if(temp.price*1<=upperprice*1){
+                    all_goods.push(temp);
+                }
+            }
+            else if(upperprice=="" && lowerprice!=""){
+                if(temp.price*1>=lowerprice*1){
+                    all_goods.push(temp);
+                }
+            }
+            else if(upperprice!="" && lowerprice!=""){
+                if(temp.price*1<=upperprice*1 && temp.price*1>=lowerprice*1){
+                    all_goods.push(temp);
+                }
+            }
+        }
+         deletewithClass('good');
+         fill(all_goods);
+        }
+
+      }
+    function getGoodswithFilters(){
+        var selected = [];
+        $('input[type=checkbox]').each(function() {
+            if ($(this).is(":checked")){
+                selected.push($(this).attr('value'));
+            }
+        });
+        var f = '';
+        if(selected.length == 0){
+            f='null';
+        }
+        else{
+            for(var i=0; i<selected.length-1; i++){
+                f+=selected[i]+'_';
+            }
+            f+=selected[selected.length-1];
+        }
+        return f;
+    }
+   </script>
+</div>
+<footer></footer>
+</body>
+</html>
